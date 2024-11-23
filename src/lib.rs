@@ -1,3 +1,9 @@
+//! Library for calculating factorials
+//!
+//! The primary function is `parallel_factorial`, which splits the factorial computation across multiple threads
+//! 
+//! There is also `factorial`, which calculates the factorial using a single thread
+
 use malachite::natural::{exhaustive, Natural};
 use std::thread;
 
@@ -9,6 +15,13 @@ use std::thread;
 // for now the naive algorithm achieves a 2x speedup when using 8 cores compared to 1 core
 
 /// Calculate the factorial of a number, splitting the calculations across multiple threads
+///
+/// # Examples
+///
+/// ```
+/// use big_factorial::parallel_factorial;
+/// assert_eq!(parallel_factorial(4, 2), 24);
+/// ```
 pub fn parallel_factorial(n: u64, num_threads: u8) -> Natural {
     let nums_per_thread = n / num_threads as u64; // note integer division
 
@@ -43,6 +56,13 @@ fn range_product(from: u64, to: u64) -> Natural {
 }
 
 /// Calculate the factorial of a number, using a single thread
+///
+/// # Examples
+///
+/// ```
+/// use big_factorial::factorial;
+/// assert_eq!(factorial(4), 24);
+/// ```
 pub fn factorial(n: u64) -> Natural {
     range_product(1, n)
 }

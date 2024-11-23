@@ -26,11 +26,11 @@ fn main() {
     };
 
     if args.full_output {
-        println!("{large_fac}")
+        println!("{}! = {large_fac}", args.x)
     } else {
         let (mantissa, exponent, _) = large_fac
             .sci_mantissa_and_exponent_round::<f64>(malachite::rounding_modes::RoundingMode::Floor)
             .unwrap();
-        println!("{}! = {mantissa}^{exponent}", args.x);
+        println!("{}! = {mantissa}*2^{exponent}", args.x);
     }
 }

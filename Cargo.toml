@@ -2,6 +2,9 @@
 name = "big_factorial"
 version = "0.1.0"
 edition = "2021"
+description = "CLI that calculates factorials of large numbers"
+license = "MIT"
 
 [dependencies]
+clap = { version = "4.5.21", features = ["derive"] }
 malachite = "=0.4.16"

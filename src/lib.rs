@@ -7,14 +7,13 @@ use std::thread;
 // to evenly divide the work, we could use a sliding window approach for larger numbers
 // where each thread calculates the product of 10_000 numbers, then is assigned the next batch of numbers
 // for now the naive algorithm achieves a 2x speedup when using 8 cores compared to 1 core
-const NUM_CORES: u8 = 8;
 
 /// Calculate the factorial of a number, splitting the calculations across multiple threads
-pub fn parallel_factorial(n: u64) -> Natural {
-    let nums_per_thread = n / NUM_CORES as u64; // note integer division
+pub fn parallel_factorial(n: u64, num_threads: u8) -> Natural {
+    let nums_per_thread = n / num_threads as u64; // note integer division
 
     // create the threads, collect them all into a vector so all the threads are spawned and running
-    let product_calculation_threads: Vec<_> = (0..NUM_CORES)
+    let product_calculation_threads: Vec<_> = (0..num_threads)
         .map(|thread_num| thread::spawn(move || calc_product(thread_num as u64, nums_per_thread)))
         .collect();
 
@@ -25,7 +24,7 @@ pub fn parallel_factorial(n: u64) -> Natural {
         .product();
 
     // multiply by any number cut off at the end (because of the integer division by NUM_CORES)
-    let final_parts: Natural = range_product(nums_per_thread * (NUM_CORES as u64) + 1, n);
+    let final_parts: Natural = range_product(nums_per_thread * (num_threads as u64) + 1, n);
     thread_product * final_parts
 }
 
@@ -43,26 +42,31 @@ fn range_product(from: u64, to: u64) -> Natural {
     }
 }
 
+/// Calculate the factorial of a number, using a single thread
+pub fn factorial(n: u64) -> Natural {
+    range_product(1, n)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn test_fac_zero() {
-        assert_eq!(parallel_factorial(0), 1)
+        assert_eq!(parallel_factorial(0, 8), 1)
     }
 
     #[test]
     fn test_fac_one() {
-        assert_eq!(parallel_factorial(1), 1);
+        assert_eq!(parallel_factorial(1, 8), 1);
     }
 
     #[test]
     fn test_fac_small() {
-        assert_eq!(parallel_factorial(2), 2);
-        assert_eq!(parallel_factorial(3), 6);
-        assert_eq!(parallel_factorial(4), 24);
-        assert_eq!(parallel_factorial(5), 120);
+        assert_eq!(parallel_factorial(2, 8), 2);
+        assert_eq!(parallel_factorial(3, 8), 6);
+        assert_eq!(parallel_factorial(4, 8), 24);
+        assert_eq!(parallel_factorial(5, 8), 120);
     }
 
     fn fac(n: u128) -> u128 {
@@ -74,7 +78,7 @@ mod tests {
     fn test_fac_large() {
         for i in 6..35 {
             println!("calculating fac of {i}");
-            assert_eq!(parallel_factorial(i), fac(i as u128))
+            assert_eq!(parallel_factorial(i, 8), fac(i as u128))
         }
     }
 }

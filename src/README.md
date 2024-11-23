@@ -9,9 +9,10 @@ In short, it allows you to set the number of threads for the computation, and wh
 10! = 3628800
 ```
 
-The library can be used like this:
+The library can be used with any integer-like type that implements addition and multiplication
 ```rust
 use big_factorial::{factorial, parallel_factorial};
-assert_eq!(factorial(4), 24);
-assert_eq!(parallel_factorial(4, 8), 24);
+assert_eq!(factorial::<u64>(4), 24);
+assert_eq!(parallel_factorial::<u64>(4, 8), 24);
+parallel_factorial::<malachite::Natural>(1_000_000, 8); // very large result
 ```

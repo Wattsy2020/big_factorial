@@ -4,15 +4,8 @@
 //!
 //! There is also `factorial`, which calculates the factorial using a single thread
 
-use std::ops::{Add, Mul};
+use std::ops::Mul;
 use std::thread;
-
-// the current algorithm is naive
-// it assumes splitting the numbers evenly will give the threads an equal amount of work
-// however multiplying larger numbers takes longer
-// to evenly divide the work, we could use a sliding window approach for larger numbers
-// where each thread calculates the product of 10_000 numbers, then is assigned the next batch of numbers
-// for now the naive algorithm achieves a 2x speedup when using 8 cores compared to 1 core
 
 /// Calculate the factorial of a number, splitting the calculations across multiple threads
 ///
@@ -22,12 +15,17 @@ use std::thread;
 /// use big_factorial::parallel_factorial;
 /// assert_eq!(parallel_factorial::<u64>(4, 2), 24);
 /// ```
-pub fn parallel_factorial<T: From<u64> + Add<T> + Mul<T, Output = T> + Send + 'static>(n: u64, num_threads: u8) -> T {
+pub fn parallel_factorial<T>(n: u64, num_threads: u8) -> T
+where
+    T: From<u64> + Mul<T, Output = T> + Send + 'static,
+{
     let nums_per_thread = n / num_threads as u64; // note integer division
 
     // create the threads, collect them all into a vector so all the threads are spawned and running
     let product_calculation_threads: Vec<_> = (0..num_threads)
-        .map(|thread_num| thread::spawn(move || calc_product::<T>(thread_num as u64, nums_per_thread)))
+        .map(|thread_num| {
+            thread::spawn(move || calc_product::<T>(thread_num as u64, nums_per_thread))
+        })
         .collect();
 
     // join the threads and accumulate the results
@@ -41,14 +39,20 @@ pub fn parallel_factorial<T: From<u64> + Add<T> + Mul<T, Output = T> + Send + 's
     thread_product * final_parts
 }
 
-fn calc_product<T: From<u64> + Add<T> + Mul<T, Output = T>>(offset: u64, num_to_multiply: u64) -> T {
+fn calc_product<T>(offset: u64, num_to_multiply: u64) -> T
+where
+    T: From<u64> + Mul<T, Output = T>,
+{
     let start = offset * num_to_multiply + 1; // add one to avoid multiplying by zero when offset = 0
     let end = (offset + 1) * num_to_multiply;
     range_product(start, end)
 }
 
 /// Sum of the numbers in [from, to] (i.e. inclusive sum)
-fn range_product<T: From<u64> + Add<T> + Mul<T, Output = T>>(from: u64, to: u64) -> T {
+fn range_product<T>(from: u64, to: u64) -> T
+where
+    T: From<u64> + Mul<T, Output = T>,
+{
     if from > to {
         1.into()
     } else {
@@ -64,7 +68,10 @@ fn range_product<T: From<u64> + Add<T> + Mul<T, Output = T>>(from: u64, to: u64)
 /// use big_factorial::factorial;
 /// assert_eq!(factorial::<u64>(4), 24);
 /// ```
-pub fn factorial<T: From<u64> + Add<T> + Mul<T, Output = T>>(n: u64) -> T {
+pub fn factorial<T>(n: u64) -> T
+where
+    T: From<u64> + Mul<T, Output = T>,
+{
     range_product(1, n)
 }
 

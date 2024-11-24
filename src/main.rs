@@ -1,18 +1,23 @@
+use big_factorial::{factorial, parallel_factorial};
 use clap::Parser;
 use malachite::Natural;
-use big_factorial::{factorial, parallel_factorial};
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
-    #[arg(required = true, help="Number to calculate the factorial of")]
+    #[arg(required = true, help = "Number to calculate the factorial of")]
     x: u64,
 
-    #[arg(short, long, default_value_t=1, help="Number of threads to use for the calculation")]
+    #[arg(
+        short,
+        long,
+        default_value_t = 1,
+        help = "Number of threads to use for the calculation"
+    )]
     num_threads: u8,
 
-    #[arg(short, long, help="Show full output")]
-    full_output: bool
+    #[arg(short, long, help = "Show full output")]
+    full_output: bool,
 }
 
 fn main() {

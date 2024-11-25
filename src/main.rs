@@ -1,4 +1,4 @@
-use big_factorial::parallel_factorial;
+use big_factorial::{factorial, parallel_factorial};
 use clap::Parser;
 use malachite::Natural;
 
@@ -6,15 +6,10 @@ use malachite::Natural;
 #[command(version, about, long_about = None)]
 struct Args {
     #[arg(required = true, help = "Number to calculate the factorial of")]
-    x: u64,
+    x: u32,
 
-    #[arg(
-        short,
-        long,
-        default_value_t = 1,
-        help = "Number of threads to use for the calculation"
-    )]
-    num_threads: u8,
+    #[arg(short, long, help = "Use a single thread for the calculation")]
+    single_threaded: bool,
 
     #[arg(short, long, help = "Show full output")]
     full_output: bool,
@@ -25,7 +20,11 @@ fn main() {
     // 10_000_000 can execute in 2.8 seconds on --release
     let args = Args::parse();
 
-    let large_fac: Natural = parallel_factorial(args.x, args.num_threads);
+    let large_fac: Natural = if args.single_threaded {
+        factorial(args.x)
+    } else {
+        parallel_factorial(args.x)
+    };
 
     if args.full_output {
         println!("{}! = {large_fac}", args.x)

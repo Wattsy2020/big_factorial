@@ -3,6 +3,7 @@ name = "big_factorial"
 version = "0.1.0"
 edition = "2021"
 description = "Tool to calculate factorials of large numbers"
+repository = "https://github.com/Wattsy2020/big_factorial"
 license = "MIT"
 
 [dependencies]

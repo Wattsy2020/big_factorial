@@ -1,4 +1,4 @@
-use big_factorial::{factorial, parallel_factorial};
+use big_factorial::parallel_factorial;
 use clap::Parser;
 use malachite::Natural;
 
@@ -25,11 +25,7 @@ fn main() {
     // 10_000_000 can execute in 2.8 seconds on --release
     let args = Args::parse();
 
-    let large_fac: Natural = if args.num_threads == 1 {
-        factorial(args.x)
-    } else {
-        parallel_factorial(args.x, args.num_threads)
-    };
+    let large_fac: Natural = parallel_factorial(args.x, args.num_threads);
 
     if args.full_output {
         println!("{}! = {large_fac}", args.x)
